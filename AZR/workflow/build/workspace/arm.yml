@@ -1,0 +1,47 @@
+resources:
+  - type: Microsoft.Network/loadBalancers
+    apiVersion: 2023-04-01
+    name: SKI-DC-LoadBalancer
+    location: eastus
+    properties:
+      frontendIPConfigurations:
+        - name: myFrontendIPConfig
+          properties:
+            publicIPAllocationMethod: Dynamic
+            publicIPAddress: 
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/publicIPAddresses/{public-ip-address-name}
+      backendAddressPools:
+        - name: myBackendPool
+      loadBalancingRules:
+        - name: myLoadBalancingRule
+          properties:
+            frontendIPConfiguration:
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/loadBalancers/myLoadBalancer/frontendIPConfigurations/myFrontendIPConfig
+            backendAddressPool:
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/loadBalancers/myLoadBalancer/backendAddressPools/myBackendPool
+            probe:
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/loadBalancers/myLoadBalancer/probes/myHealthProbe
+            protocol: Tcp
+            loadDistribution: Default
+            frontendPort: 80
+            backendPort: 80
+            idleTimeoutInMinutes: 4
+            enableFloatingIP: false
+            disableOutboundSnat: false
+      probes:
+        - name: myHealthProbe
+          properties:
+            protocol: Tcp
+            port: 80
+            intervalInSeconds: 15
+            numberOfProbes: 4
+      inboundNatRules:
+        - name: myInboundNatRule
+          properties:
+            frontendIPConfiguration:
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/loadBalancers/myLoadBalancer/frontendIPConfigurations/myFrontendIPConfig
+            backendIPConfiguration:
+              id: /subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/networkInterfaces/{nic-name}/ipConfigurations/{ip-config-name}
+            protocol: Tcp
+            frontendPort: 22
+            backendPort: 22
