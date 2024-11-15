@@ -1,0 +1,38 @@
+Resources:
+  MyEcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: ski-cluster
+
+  MyEcsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: ski-app
+      ContainerDefinitions:
+        - Name: my-web-container
+          Image: my-docker-image:latest
+          Memory: 512
+          Cpu: 256
+          Essential: true
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+
+  MyEcsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref MyEcsCluster
+      TaskDefinition: !Ref MyEcsTaskDefinition
+      DesiredCount: 1
+      LaunchType: EC2
+      LoadBalancers:
+        - ContainerName: my-web-container
+          ContainerPort: 80
+          TargetGroupArn: !Ref MyTargetGroup
+
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref MyVpc
